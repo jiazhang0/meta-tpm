@@ -1,33 +1,42 @@
-SUMMARY = "TrouSerS - An open-source TCG Software Stack implementation, \
-created and released by IBM."
+SUMMARY = "TrouSerS - An open-source TCG Software Stack implementation."
 DESCRIPTION = " \
 Trousers is an open-source TCG Software Stack (TSS), released under the \
 Common Public License. Trousers aims to be compliant with the current (1.1b) \
 and upcoming (1.2) TSS specifications available from the Trusted Computing \
 Group website: http://www.trustedcomputinggroup.org. \
 "
-SECTION = "tpm"
-PR = "r0"
-LICENSE = "CPL-1.0"
+HOMEPAGE = "https://sourceforge.net/projects/trousers"
+SECTION = "security/tpm"
+
+LICENSE = "BSD"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=8031b2ae48ededc9b982c08620573426"
+
+SRC_URI = " \
+           http://sourceforge.net/projects/trousers/files/trousers/0.3.14/trousers-0.3.14.tar.gz;subdir=${PN}-${PV} \
+           file://fix-deadlock-and-potential-hung.patch \
+           file://trousers.init.sh \
+           file://fix-event-log-parsing-problem.patch \
+           file://fix-incorrect-report-of-insufficient-buffer.patch \
+           file://trousers-conditional-compile-DES-related-code.patch \
+           file://Fix-segment-fault-if-client-hostname-cannot-be-retri.patch \
+           file://trousers-udev.rules \
+           file://tcsd.service \
+           file://tcsd.conf \
+          "
+
+SRC_URI[md5sum] = "4a476b4f036dd20a764fb54fc24edbec"
+SRC_URI[sha256sum] = "ce50713a261d14b735ec9ccd97609f0ad5ce69540af560e8c3ce9eb5f2d28f47"
+
+S = "${WORKDIR}/${PN}-${PV}"
+
 DEPENDS = "openssl"
 
-SRC_URI += " \
-            http://sourceforge.net/projects/trousers/files/trousers/0.3.13/trousers-0.3.13.tar.gz \
-            file://07-read_data-not-inline.patch \
-            file://fix-deadlock-and-potential-hung.patch \
-            file://fix-event-log-parsing-problem.patch \
-            file://fix-incorrect-report-of-insufficient-buffer.patch \
-            file://trousers-conditional-compile-DES-related-code.patch \
-            file://Fix-segment-fault-if-client-hostname-cannot-be-retri.patch \
-            file://trousers.init.sh \
-            file://trousers-udev.rules \
-            file://tcsd.service \
-            file://tcsd.conf \
-           "
+inherit autotools pkgconfig useradd update-rc.d
+inherit ${@bb.utils.contains('VIRTUAL-RUNTIME_init_manager', 'systemd', 'systemd', '', d)}
 
-SRC_URI[md5sum] = "ad508f97b406f6e48cd90e85d78e7ca8"
-SRC_URI[sha256sum] = "bb908e4a3c88a17b247a4fc8e0fff3419d8a13170fe7bdfbe0e2c5c082a276d3"
+PACKAGECONFIG ?= "gmp "
+PACKAGECONFIG[gmp] = "--with-gmp, --with-gmp=no, gmp"
+PACKAGECONFIG[gtk] = "--with-gui=gtk, --with-gui=none, gtk+"
 
 PACKAGES =+ " \
              libtspi \
@@ -65,13 +74,11 @@ FILES_${PN}-dbg = " \
                    ${prefix}/src/debug/${PN}/${PV}-${PR}/${PN}-${PV}/src/trousers \
                    ${prefix}/src/debug/${PN}/${PV}-${PR}/${PN}-${PV}/src/include/trousers \
                   "
-
-inherit autotools pkgconfig useradd update-rc.d systemd
+FILES_${PN}-dev += "${libdir}/trousers"
+CONFFILES_${PN} += "${sysconfig}/tcsd.conf"
 
 INITSCRIPT_NAME = "trousers"
 INITSCRIPT_PARAMS = "start 99 2 3 4 5 . stop 19 0 1 6 ."
-
-EXTRA_OECONF="--with-gui=none"
 
 USERADD_PACKAGES = "${PN}"
 GROUPADD_PARAM_${PN} = "tss"
