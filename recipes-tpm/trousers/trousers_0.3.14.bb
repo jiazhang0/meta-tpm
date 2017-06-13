@@ -38,6 +38,7 @@ PACKAGECONFIG ?= "gmp "
 PACKAGECONFIG[gmp] = "--with-gmp, --with-gmp=no, gmp"
 PACKAGECONFIG[gtk] = "--with-gui=gtk, --with-gui=none, gtk+"
 
+PROVIDES = "${PACKAGES}"
 PACKAGES =+ " \
              libtspi \
              libtspi-dbg \
