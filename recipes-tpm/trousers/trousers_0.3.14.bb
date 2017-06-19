@@ -76,6 +76,7 @@ FILES_${PN}-dbg = " \
                    ${prefix}/src/debug/${PN}/${PV}-${PR}/${PN}-${PV}/src/include/trousers \
                   "
 FILES_${PN}-dev += "${libdir}/trousers"
+FILES_${PN} += "${systemd_unitdir}/system/tcsd.service"
 CONFFILES_${PN} += "${sysconfig}/tcsd.conf"
 
 INITSCRIPT_NAME = "trousers"
